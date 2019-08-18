@@ -18,7 +18,7 @@
 
 #define DEBUG_ENABLE
 
-unsigned char print_glyphs = 0;
+unsigned char print_glyphs = 1;
 // #define PRINT_GLYPHS
 
 #ifdef DEBUG_ENABLE
@@ -120,54 +120,6 @@ void show_image(void)
    }
 }
 
-static hb_position_t
-_evas_common_font_ot_hb_get_glyph_advance(hb_font_t *font,
-      void *font_data, hb_codepoint_t glyph,
-      void *user_data)
-{
-   // /* Use our cache*/
-   // RGBA_Font_Int *fi = (RGBA_Font_Int *) font_data;
-   // RGBA_Font_Glyph *fg;
-   // (void) font;
-   // (void) user_data;
-   // fg = evas_common_font_int_cache_glyph_get(fi, glyph);
-   // if (fg)
-   //   {
-   //      return fg->glyph->advance.x >> 10;
-   //   }
-   return 0;
-}
-
-static hb_position_t
-_evas_common_font_ot_hb_get_kerning(hb_font_t *font, void *font_data,
-   hb_codepoint_t first_glyph, hb_codepoint_t second_glyph, void *user_data)
-{
-   // RGBA_Font_Int *fi = (RGBA_Font_Int *) font_data;
-   // int kern;
-   // (void) font;
-   // (void) user_data;
-   // if (evas_common_font_query_kerning(fi, first_glyph, second_glyph, &kern))
-   //    return kern;
-
-   return 0;
-}
-
-static inline hb_font_funcs_t *
-_evas_common_font_ot_font_funcs_get(void)
-{
-   static hb_font_funcs_t *font_funcs = NULL;
-   if (!font_funcs)
-     {
-        font_funcs = hb_font_funcs_create();
-        hb_font_funcs_set_glyph_h_advance_func(font_funcs,
-            _evas_common_font_ot_hb_get_glyph_advance, NULL, NULL);
-        hb_font_funcs_set_glyph_h_kerning_func(font_funcs,
-            _evas_common_font_ot_hb_get_kerning, NULL, NULL);
-     }
-
-   return font_funcs;
-}
-
 
 int main(int argc,
          char **argv)
@@ -177,17 +129,16 @@ int main(int argc,
 
    FT_GlyphSlot slot;
    FT_Error error;
+   int size = 16;
    // const char *text = "LVAWeTaY";
-   int size = 8;
-   const char *text = "Ta";
+   const char *text = "Te";
 
 
-   char *filename;
+   const char *filename = "res/fonts/DejaVuSans.ttf";
 
-   if (argc < 2)
+   if (argc > 1)
    {
-      fprintf(stderr, "usage: %s font-file [text] [size] [-d]\n", argv[0]);
-      exit(1);
+      filename = argv[1];
    }
 
    if ( argc > 2 ) {
@@ -200,12 +151,6 @@ int main(int argc,
          size = size_p;
       }
    }
-
-   if ( argc > 4 && 0 == strcmp(argv[4], "-d") ) {
-      print_glyphs = 1;
-   }
-
-   filename = argv[1]; /* first argument     */
 
    error = FT_Init_FreeType(&library); /* initialize library */
    if (error)
@@ -232,33 +177,29 @@ int main(int argc,
    slot = face->glyph;
 
    // Harfbuzz configuration
-   hb_font_t *font = NULL;
-   hb_font_t *hb_ft_font;
-
-   hb_ft_font = hb_ft_font_create(face, NULL);
-   font = hb_font_create_sub_font(hb_ft_font);
-   hb_font_destroy(hb_ft_font);
-   // void *hb_font = hb_font_create_sub_font(font);
+   hb_font_t *font = hb_ft_font_create(face, NULL);
+   hb_font_t *hb_font = hb_font_create_sub_font(font);
+   hb_font_destroy(font);
 
    hb_buffer_t *buffer;
 
    buffer = hb_buffer_create();
-   hb_buffer_set_unicode_funcs(buffer, hb_unicode_funcs_get_default());
-   hb_buffer_set_language(buffer, hb_language_from_string(NULL, -1));
-   hb_buffer_set_script(buffer, HB_SCRIPT_LATIN);
+   hb_buffer_allocation_successful(buffer);
+
+   hb_buffer_reset(buffer);
+
    hb_buffer_set_direction(buffer, HB_DIRECTION_LTR);
+   hb_buffer_set_script(buffer, HB_SCRIPT_LATIN);
+   hb_buffer_set_language(buffer, hb_language_from_string("en", 2));
+
    size_t length = strlen(text);
    hb_buffer_add_utf8(buffer, text, length, 0, length);
 
-   // hb_buffer_allocation_successful(buffer);
-
-   // hb_buffer_reset(buffer);
-   hb_shape(font, buffer, NULL, 0);
+   hb_shape(hb_font, buffer, NULL, 0);
 
    unsigned int glyphCount;
-   hb_glyph_info_t *glyphInfo = hb_buffer_get_glyph_infos(buffer, NULL);
-   hb_glyph_position_t *glyphPos = hb_buffer_get_glyph_positions(buffer, NULL);
-   glyphCount = hb_buffer_get_length(buffer);
+   hb_glyph_info_t *glyphInfo = hb_buffer_get_glyph_infos(buffer, &glyphCount);
+   hb_glyph_position_t *glyphPos = hb_buffer_get_glyph_positions(buffer, &glyphCount);
 
    float x, y;
    x = 0;
@@ -267,7 +208,7 @@ int main(int argc,
    for (unsigned int i = 0; i < glyphCount; ++i)
    {
       Glyph glyph;
-      error = FT_Load_Glyph(face, glyphInfo->codepoint, FT_LOAD_DEFAULT);
+      error = FT_Load_Glyph(face, glyphInfo[i].codepoint, FT_LOAD_DEFAULT);
       if (error)
       {
          puts("FT_Load_Glyph error");
@@ -277,7 +218,7 @@ int main(int argc,
       FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
       FT_Bitmap ftBitmap = slot->bitmap;
 
-      glyph.codepoint = glyphInfo->codepoint;
+      glyph.codepoint = glyphInfo[i].codepoint;
       glyph.buffer = ftBitmap.buffer;
       glyph.width = ftBitmap.width;
       glyph.height = ftBitmap.rows;
@@ -287,24 +228,22 @@ int main(int argc,
 # define FONT_ROUND_26_6_TO_INT(x) \
    (((x + 0x20) & -0x40) >> 6)
 
-      printf("\n\nChar @ index %d\n", i);
+      printf("\n\nChar @ index %ui\n", i);
 
-      print_glyph_pos(glyphPos);
+      print_glyph_pos(&glyphPos[i]);
 
-      float xa = (float)FONT_ROUND_26_6_TO_INT(glyphPos->x_advance);
-      float ya = (float)FONT_ROUND_26_6_TO_INT(glyphPos->y_advance);
-      float xo = (float)FONT_ROUND_26_6_TO_INT(glyphPos->x_offset);
-      float yo = (float)FONT_ROUND_26_6_TO_INT(glyphPos->y_offset);
+      float xa = (float)FONT_ROUND_26_6_TO_INT(glyphPos[i].x_advance);
+      float ya = (float)FONT_ROUND_26_6_TO_INT(glyphPos[i].y_advance);
+      float xo = (float)FONT_ROUND_26_6_TO_INT(glyphPos[i].x_offset);
+      float yo = (float)FONT_ROUND_26_6_TO_INT(glyphPos[i].y_offset);
 
       /* now, draw to our target surface (convert position) */
       draw_bitmap(&glyph, x, y, xo, yo);
 
       x += xa;
       y += ya;
-
-      glyphPos++;
-      glyphInfo++;
    }
+
    show_image();
    hb_buffer_destroy(buffer);
    hb_font_destroy(font);
