@@ -1,0 +1,34 @@
+
+
+Char @ index 0
+Glyph pos:
+ var: 0
+ x_adv: 28968
+ y_adv: 0
+ x_off: 0
+ y_off: 0
+
+Drawing: glyph# 55
+bearing:x(7.00)y(560.00)
+offset:x(0.00)y(0.00)
+p0(7.0, 560.0), p1(505.0, 1120.0)
+
+
+End drawing
+
+
+Char @ index 1
+Glyph pos:
+ var: 0
+ x_adv: 29304
+ y_adv: 0
+ x_off: 0
+ y_off: 0
+
+Drawing: glyph# 68
+bearing:x(38.00)y(410.00)
+offset:x(0.00)y(0.00)
+p0(491.0, 410.0), p1(890.0, 831.0)
+
+
+End drawing
