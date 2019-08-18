@@ -7,8 +7,9 @@
             "request": "launch",
             "program": "${workspaceFolder}/bin/main",
             "args": [
-                "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
-                "TaLVAWLYMTe",
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                "Te",
+                "13",
                 "-d"
             ],
             "stopAtEntry": false,
