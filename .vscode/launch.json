@@ -8,7 +8,8 @@
             "program": "${workspaceFolder}/bin/main",
             "args": [
                 "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
-                "TaLVAWLYMTe"
+                "TaLVAWLYMTe",
+                "-d"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",

@@ -42,7 +42,7 @@ unsigned char image[HEIGHT][WIDTH];
 
 void print_glyph_pos(hb_glyph_position_t *gp) {
 #ifdef DEBUG_ENABLE
-   printf("Glyph pos:\n var: %d\n x_adv: %d\n y_adv: %d\n x_off: %d\n y_off: %d\n", gp->var, gp->x_advance, gp->y_advance, gp->x_offset, gp->y_offset);
+   printf("Glyph pos:\n var: %d\n x_adv: %d\n y_adv: %d\n x_off: %d\n y_off: %d\n", gp->var.i32, gp->x_advance, gp->y_advance, gp->x_offset, gp->y_offset);
 #endif
 }
 
@@ -106,8 +106,8 @@ void draw_bitmap(Glyph *glyph, float x, float y, float xo, float yo)
 
 void show_image(void)
 {
-   int i, j;
    if ( print_glyphs ) {
+      int i, j;
       for (i = 0; i < HEIGHT; i++)
       {
          for (j = 0; j < WIDTH; j++) {
@@ -130,7 +130,7 @@ int main(int argc,
    FT_GlyphSlot slot;
    FT_Error error;
    // const char *text = "LVAWeTaY";
-   int size = 8, size_p;
+   int size = 8;
    const char *text = "Ta";
 
 
@@ -138,7 +138,7 @@ int main(int argc,
 
    if (argc < 2)
    {
-      fprintf(stderr, "usage: %s font-file [text]\n", argv[0]);
+      fprintf(stderr, "usage: %s font-file [text] [size] [-d]\n", argv[0]);
       exit(1);
    }
 
@@ -147,7 +147,7 @@ int main(int argc,
    }
 
    if ( argc > 3 ) {
-      size_p = atoi(argv[3]);
+      int size_p = atoi(argv[3]);
       if ( size_p ) {
          size = size_p;
       }
@@ -193,7 +193,7 @@ int main(int argc,
 
    // Harfbuzz configuration
    hb_font_t *font = hb_ft_font_create(face, NULL);
-   void *hb_font = hb_font_create_sub_font(font);
+   // void *hb_font = hb_font_create_sub_font(font);
 
    hb_buffer_t *buffer;
 
