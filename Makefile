@@ -1,5 +1,5 @@
 CC		:= gcc
-C_FLAGS := -g -O0 -Wall -Wextra `pkg-config --cflags freetype2`
+C_FLAGS := -g -O0 -Wall -Wextra `pkg-config --cflags harfbuzz freetype2`
 
 BIN		:= .
 SRC		:= src

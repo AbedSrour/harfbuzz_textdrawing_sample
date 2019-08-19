@@ -10,8 +10,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "hb.h"
-#include "hb-ft.h"
+#include <hb.h>
+#include <hb-ft.h>
 
 #define WIDTH 150
 #define HEIGHT 64
